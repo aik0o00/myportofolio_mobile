@@ -1,3 +1,5 @@
+import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -18,12 +20,17 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'MyPortfolio',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      title: const Text(
+        'MyPortfolio',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      iconTheme: const IconThemeData(color: Colors.white),
+    ),
+    drawer: const LeftDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -120,14 +127,26 @@ class ItemCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text("Kamu telah menekan tombol ${item.name}!"),
-              ),
-            );
-        },
+        // Memunculkan SnackBar
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Kamu telah menekan tombol ${item.name}!"),
+          ),
+        );
+
+        // Navigasi ke halaman Experience
+        if (item.name == "Tambah Pengalaman") {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ExperienceFormPage(),
+            ),
+          );
+        }
+      },
+
         child: Container(
           padding: const EdgeInsets.all(8),
           child: Center(
