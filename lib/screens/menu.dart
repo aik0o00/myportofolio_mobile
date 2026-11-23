@@ -1,3 +1,5 @@
+
+import 'package:myportofolio_mobile/screens/skill_form.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:flutter/material.dart';
@@ -20,17 +22,17 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: const Text(
-        'MyPortfolio',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
+        title: const Text(
+          'MyPortfolio',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      iconTheme: const IconThemeData(color: Colors.white),
-    ),
-    drawer: const LeftDrawer(),
+      drawer: const LeftDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -54,7 +56,10 @@ class MyHomePage extends StatelessWidget {
                 padding: EdgeInsets.only(top: 16.0),
                 child: Text(
                   'Selamat datang di MyPortfolio Mobile!',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
+                  ),
                 ),
               ),
 
@@ -127,26 +132,35 @@ class ItemCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: () {
-        // Memunculkan SnackBar
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          // Memunculkan SnackBar
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Kamu telah menekan tombol ${item.name}!"),
-          ),
-        );
-
-        // Navigasi ke halaman Experience
-        if (item.name == "Tambah Pengalaman") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ExperienceFormPage(),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Kamu telah menekan tombol ${item.name}!"),
             ),
           );
-        }
-      },
 
+          // Navigasi ke halaman Skills
+          if (item.name == "Skills") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SkillFormPage(),
+              ),
+            );
+          }
+
+          // Navigasi ke halaman Experience
+          if (item.name == "Experience") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ExperienceFormPage(),
+              ),
+            );
+          }
+        },
         child: Container(
           padding: const EdgeInsets.all(8),
           child: Center(

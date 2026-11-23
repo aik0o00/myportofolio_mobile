@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/skill_form.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -54,13 +55,27 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
 
+          // Navigasi ke Add Skill
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('Add Skill'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SkillFormPage(),
+                ),
+              );
+            },
+          ),
+
           // Navigasi ke Add Experience
           ListTile(
             leading: const Icon(Icons.work_outline),
             title: const Text('Add Experience'),
             onTap: () {
               Navigator.pop(context);
-
               Navigator.push(
                 context,
                 MaterialPageRoute(
