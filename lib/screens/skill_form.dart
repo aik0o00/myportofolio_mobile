@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import '../widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/services/api_service.dart';
 
 class SkillFormPage extends StatefulWidget {
   const SkillFormPage({super.key});
@@ -12,10 +12,64 @@ class SkillFormPage extends StatefulWidget {
 class _SkillFormPageState extends State<SkillFormPage> {
   final _formKey = GlobalKey<FormState>();
 
-  String _skillName = '';
-  String _category = '';
-  String _level = '';
-  String _description = '';
+  final _skillName = TextEditingController();
+  final _category = TextEditingController();
+  final _level = TextEditingController();
+  final _description = TextEditingController();
+
+  bool isLoading = false;
+
+  Future<void> saveSkill() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => isLoading = true);
+
+    try {
+      final success = await ApiService.addSkill(
+        name: _skillName.text.trim(),
+        category: _category.text.trim(),
+        level: _level.text.trim(),
+        description: _description.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Skill berhasil ditambahkan!'),
+          ),
+        );
+
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menambahkan Skill.'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _skillName.dispose();
+    _category.dispose();
+    _level.dispose();
+    _description.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,168 +79,80 @@ class _SkillFormPageState extends State<SkillFormPage> {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
-      drawer: const LeftDrawer(),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
+          padding: const EdgeInsets.all(8),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // === Nama Skill ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Nama Skill',
-                    hintText: 'Contoh: Problem Solving',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    _skillName = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Nama skill tidak boleh kosong!';
-                    }
-                    return null;
-                  },
-                ),
+              buildField(
+                controller: _skillName,
+                label: 'Nama Skill',
+                hint: 'Contoh: Problem Solving',
               ),
-
-              // === Kategori ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Kategori',
-                    hintText: 'Contoh: Soft Skill, Language, Technical Skill',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    _category = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Kategori tidak boleh kosong!';
-                    }
-                    return null;
-                  },
-                ),
+              buildField(
+                controller: _category,
+                label: 'Kategori',
+                hint: 'Contoh: Soft Skill',
               ),
-
-              // === Level ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Level',
-                    hintText: 'Contoh: Intermediate atau -',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    _level = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Level tidak boleh kosong!';
-                    }
-                    return null;
-                  },
-                ),
+              buildField(
+                controller: _level,
+                label: 'Level',
+                hint: 'Contoh: Intermediate atau -',
               ),
-
-              // === Deskripsi ===
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    labelText: 'Deskripsi',
-                    hintText: 'Masukkan deskripsi skill...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    _description = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Deskripsi tidak boleh kosong!';
-                    }
-                    return null;
-                  },
-                ),
+              buildField(
+                controller: _description,
+                label: 'Deskripsi',
+                hint: 'Masukkan deskripsi skill...',
+                maxLines: 5,
               ),
-
-              // === Save Button ===
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStateProperty.all(Colors.indigo),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text(
-                                'Skill berhasil ditambahkan!',
-                              ),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Nama Skill: $_skillName'),
-                                    Text('Kategori: $_category'),
-                                    Text('Level: $_level'),
-                                    Text('Deskripsi: $_description'),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-
-                                    setState(() {
-                                      _skillName = '';
-                                      _category = '';
-                                      _level = '';
-                                      _description = '';
-                                    });
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(color: Colors.white),
-                    ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    foregroundColor: Colors.white,
                   ),
+                  onPressed: isLoading ? null : saveSkill,
+                  child: isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text('Save'),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) {
+            return '$label tidak boleh kosong!';
+          }
+          return null;
+        },
       ),
     );
   }

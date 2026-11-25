@@ -1,8 +1,10 @@
 
-import 'package:myportofolio_mobile/screens/skill_form.dart';
-import 'package:myportofolio_mobile/screens/experience_form.dart';
-import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:myportofolio_mobile/screens/skills_page.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/login_page.dart';
+import 'package:myportofolio_mobile/services/api_service.dart';
+import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
 class MyHomePage extends StatelessWidget {
   MyHomePage({super.key});
@@ -17,6 +19,20 @@ class MyHomePage extends StatelessWidget {
     ItemHomepage("Experience", Icons.work, Colors.orange),
     ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
+
+  Future<void> handleLogout(BuildContext context) async {
+    await ApiService.logout();
+
+    if (!context.mounted) return;
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const LoginPage(),
+      ),
+      (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +51,10 @@ class MyHomePage extends StatelessWidget {
       drawer: const LeftDrawer(),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // InfoCard
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -48,22 +63,17 @@ class MyHomePage extends StatelessWidget {
                   InfoCard(title: 'Class', content: kelas),
                 ],
               ),
-
-              const SizedBox(height: 16.0),
-
-              // Welcome message
+              const SizedBox(height: 16),
               const Padding(
-                padding: EdgeInsets.only(top: 16.0),
+                padding: EdgeInsets.only(top: 16),
                 child: Text(
                   'Selamat datang di MyPortfolio Mobile!',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
+                    fontSize: 18,
                   ),
                 ),
               ),
-
-              // GridView
               GridView.count(
                 primary: false,
                 physics: const NeverScrollableScrollPhysics(),
@@ -72,8 +82,38 @@ class MyHomePage extends StatelessWidget {
                 mainAxisSpacing: 10,
                 crossAxisCount: 2,
                 shrinkWrap: true,
-                children: items.map((ItemHomepage item) {
-                  return ItemCard(item);
+                children: items.map((item) {
+                  return ItemCard(
+                    item,
+                    onTap: () {
+                      if (item.name == "Skills") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SkillsPage(),
+                          ),
+                        );
+                      } else if (item.name == "Experience") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const ExperienceFormPage(),
+                          ),
+                        );
+                      } else if (item.name == "Logout") {
+                        handleLogout(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Kamu telah menekan tombol ${item.name}!',
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  );
                 }).toList(),
               ),
             ],
@@ -84,24 +124,30 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
-// InfoCard
 class InfoCard extends StatelessWidget {
   final String title;
   final String content;
 
-  const InfoCard({super.key, required this.title, required this.content});
+  const InfoCard({
+    super.key,
+    required this.title,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2.0,
+      elevation: 2,
       child: Container(
         width: MediaQuery.of(context).size.width / 3.5,
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8.0),
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Text(content),
           ],
         ),
@@ -110,7 +156,6 @@ class InfoCard extends StatelessWidget {
   }
 }
 
-// ItemHomepage
 class ItemHomepage {
   final String name;
   final IconData icon;
@@ -119,11 +164,15 @@ class ItemHomepage {
   ItemHomepage(this.name, this.icon, this.color);
 }
 
-// ItemCard
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
+  final VoidCallback onTap;
 
-  const ItemCard(this.item, {super.key});
+  const ItemCard(
+    this.item, {
+    super.key,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -131,44 +180,16 @@ class ItemCard extends StatelessWidget {
       color: item.color,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        onTap: () {
-          // Memunculkan SnackBar
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Kamu telah menekan tombol ${item.name}!"),
-            ),
-          );
-
-          // Navigasi ke halaman Skills
-          if (item.name == "Skills") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SkillFormPage(),
-              ),
-            );
-          }
-
-          // Navigasi ke halaman Experience
-          if (item.name == "Experience") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ExperienceFormPage(),
-              ),
-            );
-          }
-        },
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.all(8),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(item.icon, color: Colors.white, size: 30.0),
-                const Padding(padding: EdgeInsets.all(3)),
+                Icon(item.icon, color: Colors.white, size: 30),
+                const SizedBox(height: 6),
                 Text(
                   item.name,
                   textAlign: TextAlign.center,
